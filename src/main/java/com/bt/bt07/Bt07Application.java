@@ -29,22 +29,18 @@ public class Bt07Application {
 		SpringApplication.run(Bt07Application.class, args);
 	}
 
-	// --- THÊM ĐOẠN NÀY ---
 	@Bean
 	CommandLineRunner init(UserRepository userRepo, PasswordEncoder passwordEncoder) {
 		return args -> {
-			// Kiểm tra nếu chưa có admin thì tạo mới
 			if (userRepo.findById("admin").isEmpty()) {
 				User admin = new User();
 				admin.setUsername("admin");
-				// Dòng này cực quan trọng: nó sẽ mã hóa "123" thành chuẩn BCrypt chính xác
 				admin.setPassword(passwordEncoder.encode("123"));
 				admin.setFullname("Administrator");
 				admin.setEmail("admin@test.com");
 				admin.setAdmin(true); // set quyền Admin
 				admin.setActive(true); // set tài khoản hoạt động
 				userRepo.save(admin);
-				System.out.println(">>> ĐÃ TẠO TÀI KHOẢN ADMIN: admin / 123");
 			}
 		};
 	}
