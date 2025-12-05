@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Video Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <h3 th:text="${video.id} != null ? 'Edit Video' : 'New Video'"></h3>
+        <form th:action="@{/admin/videos/save}" th:object="${video}" method="post">
+            <input type="hidden" th:field="*{id}" />
+            <div class="form-group">
+                <label>Title</label>
+                <input th:field="*{title}" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Poster (Filename)</label>
+                <input th:field="*{poster}" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Views</label>
+                <input th:field="*{views}" type="number" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea th:field="*{description}" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="categoryId" class="form-control">
+                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.categoryname}"
+                        th:selected="${video.category != null and video.category.id == c.id}">
+                    </option>
+                </select>
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" th:field="*{active}" class="form-check-input" />
+                <label class="form-check-label">Active</label>
+            </div>
+            <button class="btn btn-primary" type="submit">Save</button>
+            <a class="btn btn-secondary" th:href="@{/admin/videos}">Cancel</a>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<div th:fragment="header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center">
+                <img src="/images/me.jpg" alt="photo" class="student-photo mr-2"
+                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;"
+                    onerror="this.style.display='none'" />
+                <div>
+                    <a class="navbar-brand mb-0 h5" th:href="@{/}">BT06 - Quản trị</a>
+                    <div class="small text-muted">Ứng dụng quản lý Videos / Categories / Users</div>
+                </div>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbars"
+                aria-controls="navbars" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbars">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/videos}">Videos</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/categories}">Categories</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/users}">Users</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/login}">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>

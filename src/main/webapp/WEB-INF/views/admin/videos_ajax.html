@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Quản lý Video (AJAX)</title>
+    <script>var contextPath = "[[@{/}]]";</script>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <h3 class="mb-4 border-bottom pb-2">Quản Lý Video (AJAX API)</h3>
+
+            <div class="row mb-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm video...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" onclick="loadVideos(0)">
+                                <i class="fas fa-search"></i> Tìm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7 text-right">
+                    <button class="btn btn-success" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i> Thêm Mới
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 5%">ID</th>
+                            <th style="width: 10%">Poster</th>
+                            <th style="width: 25%">Tiêu đề</th>
+                            <th>Mô tả</th>
+                            <th style="width: 10%">Views</th>
+                            <th style="width: 10%">Status</th>
+                            <th style="width: 15%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="videoTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <nav>
+                <ul class="pagination justify-content-center" id="pagination">
+                </ul>
+            </nav>
+        </div>
+
+        <div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Thông tin Video</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="videoForm" enctype="multipart/form-data">
+                            <input type="hidden" id="videoId" name="videoId">
+
+                            <div class="form-group">
+                                <label>Tiêu đề <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Poster</label>
+                                <input type="file" class="form-control-file" id="poster" name="poster">
+                                <img id="previewPoster" src="" class="mt-2 img-thumbnail"
+                                    style="width: 120px; display: none;">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mô tả</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="active" name="active" value="true"
+                                    checked>
+                                <label class="form-check-label" for="active">Hoạt động</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Danh mục</label>
+                                <select class="form-control" id="categoryId" name="categoryId">
+                                    <option value="">-- Chọn danh mục --</option>
+                                    <th:block th:each="c : ${categories}">
+                                        <option th:value="${c.id}" th:text="${c.categoryname}"></option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-primary" onclick="saveVideo()">Lưu lại</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var currentPage = 0;
+            var pageSize = 5;
+
+            $(document).ready(function () {
+                loadVideos(0);
+            });
+
+            function loadVideos(page) {
+                var keyword = $("#searchInput").val();
+                $.ajax({
+                    url: contextPath + 'api/video',
+                    type: 'GET',
+                    data: { page: page, size: pageSize, keyword: keyword },
+                    success: function (response) {
+                        if (response.status) {
+                            renderTable(response.body.content);
+                            renderPagination(response.body);
+                            currentPage = page;
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                        alert("Không thể tải dữ liệu!");
+                    }
+                });
+            }
+
+            function renderTable(videos) {
+                var html = '';
+                if (videos.length === 0) {
+                    html = '<tr><td colspan="7" class="text-center">Không có dữ liệu</td></tr>';
+                } else {
+                    $.each(videos, function (index, video) {
+                        var posterUrl = video.poster && video.poster !== 'default.png'
+                            ? contextPath + 'api/video/image/' + video.poster
+                            : 'https://via.placeholder.com/100';
+
+                        var activeBadge = video.active
+                            ? '<span class="badge badge-success">Active</span>'
+                            : '<span class="badge badge-secondary">Inactive</span>';
+
+                        html += '<tr>' +
+                            '<td>' + video.id + '</td>' +
+                            '<td><img src="' + posterUrl + '" style="width:60px; height:auto; border-radius:4px;"></td>' +
+                            '<td>' + video.title + '</td>' +
+                            '<td>' + (video.description || '') + '</td>' +
+                            '<td>' + video.views + '</td>' +
+                            '<td>' + activeBadge + '</td>' +
+                            '<td>' +
+                            '<button class="btn btn-info btn-sm mr-1" onclick="editVideo(' + video.id + ')"><i class="fas fa-edit"></i></button>' +
+                            '<button class="btn btn-danger btn-sm" onclick="deleteVideo(' + video.id + ')"><i class="fas fa-trash"></i></button>' +
+                            '</td>' +
+                            '</tr>';
+                    });
+                }
+                $("#videoTableBody").html(html);
+            }
+
+            function renderPagination(pageData) {
+                var html = '';
+                var totalPages = pageData.totalPages;
+                var current = pageData.number;
+
+                if (totalPages > 0) {
+                    html += '<li class="page-item ' + (current === 0 ? 'disabled' : '') + '"><button class="page-link" onclick="loadVideos(' + (current - 1) + ')">Trước</button></li>';
+                    for (var i = 0; i < totalPages; i++) {
+                        html += '<li class="page-item ' + (i === current ? 'active' : '') + '"><button class="page-link" onclick="loadVideos(' + i + ')">' + (i + 1) + '</button></li>';
+                    }
+                    html += '<li class="page-item ' + (current === totalPages - 1 ? 'disabled' : '') + '"><button class="page-link" onclick="loadVideos(' + (current + 1) + ')">Sau</button></li>';
+                }
+                $("#pagination").html(html);
+            }
+
+            function openAddModal() {
+                $("#videoForm")[0].reset();
+                $("#videoId").val(""); // Clear ID để API hiểu là thêm mới
+                $("#categoryId").val(""); // <-- Reset select box
+                $("#modalTitle").text("Thêm Video Mới");
+                $("#previewPoster").hide();
+                $('#videoModal').modal('show');
+            }
+
+            function saveVideo() {
+                var form = $('#videoForm')[0];
+                var formData = new FormData(form);
+                var id = $("#videoId").val();
+
+                // Checkbox xử lý thủ công
+                formData.set("active", $("#active").is(":checked"));
+                formData.set("categoryId", $("#categoryId").val());
+
+                // Nếu có ID -> Gọi API Update, ngược lại -> Add
+                var url = id ? contextPath + 'api/video/update' : contextPath + 'api/video/add';
+                var type = id ? 'PUT' : 'POST';
+
+                $.ajax({
+                    url: url,
+                    type: type,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.status) {
+                            alert(response.message);
+                            $('#videoModal').modal('hide');
+                            loadVideos(currentPage);
+                        } else {
+                            alert("Lỗi: " + response.message);
+                        }
+                    },
+                    error: function (err) {
+                        alert("Có lỗi xảy ra khi lưu dữ liệu!");
+                        console.log(err);
+                    }
+                });
+            }
+
+            function editVideo(id) {
+                $.ajax({
+                    url: contextPath + 'api/video/' + id,
+                    type: 'GET',
+                    success: function (response) {
+                        if (response.status) {
+                            var v = response.body;
+                            // Map dữ liệu từ Entity vào Form
+                            $("#videoId").val(v.id);
+                            $("#title").val(v.title);
+                            $("#description").val(v.description);
+                            $("#active").prop("checked", v.active);
+                            if (v.category) {
+                                $("#categoryId").val(v.category.id);
+                            } else {
+                                $("#categoryId").val("");
+                            }
+                            $("#modalTitle").text("Cập nhật Video");
+
+                            if (v.poster && v.poster !== 'default.png') {
+                                $("#previewPoster").attr("src", contextPath + "api/video/image/" + v.poster).show();
+                            } else {
+                                $("#previewPoster").hide();
+                            }
+
+                            $('#videoModal').modal('show');
+                        }
+                    }
+                });
+            }
+
+            function deleteVideo(id) {
+                if (confirm("Bạn có chắc chắn muốn xóa video này?")) {
+                    $.ajax({
+                        url: contextPath + 'api/video/delete/' + id,
+                        type: 'DELETE',
+                        success: function (response) {
+                            if (response.status) {
+                                alert(response.message);
+                                loadVideos(currentPage);
+                            } else {
+                                alert(response.message);
+                            }
+                        }
+                    });
+                }
+            }
+        </script>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Users</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between mb-3">
+            <h3>Users Management</h3>
+            <a class="btn btn-primary" th:href="@{/admin/users/new}">New User</a>
+        </div>
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Username</th>
+                    <th>Fullname</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.username}"></td>
+                    <td th:text="${u.fullname}"></td>
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.phone}"></td>
+                    <td><span th:text="${u.admin ? 'ADMIN' : 'USER'}" class="badge badge-info"></span></td>
+                    <td th:text="${u.active}"></td>
+                    <td>
+                        <a class="btn btn-sm btn-secondary"
+                            th:href="@{/admin/users/edit/{username}(username=${u.username})}">Edit</a>
+                        <a class="btn btn-sm btn-danger"
+                            th:href="@{/admin/users/delete/{username}(username=${u.username})}"
+                            onclick="return confirm('Delete user?')">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

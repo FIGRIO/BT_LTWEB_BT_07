@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Access Denied</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container text-center mt-5">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Access Denied</h4>
+                <p>Bạn không có quyền truy cập vào trang này.</p>
+                <hr>
+                <a class="btn btn-primary" th:href="@{/}">Quay về trang chủ</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

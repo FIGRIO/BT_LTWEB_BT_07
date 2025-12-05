@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Videos (Server Side)</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between mb-3">
+            <h3>Videos List</h3>
+            <a class="btn btn-primary" th:href="@{/admin/videos/new}">New Video</a>
+        </div>
+
+        <form class="form-inline mb-3" th:action="@{/admin/videos}" method="get">
+            <input type="text" name="q" th:value="${q}" class="form-control mr-2" placeholder="Search title..." />
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Views</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="v : ${videos}">
+                    <td th:text="${v.id}"></td>
+                    <td th:text="${v.title}"></td>
+                    <td th:text="${v.category != null ? v.category.categoryname : 'N/A'}"></td>
+                    <td th:text="${v.views}"></td>
+                    <td>
+                        <span th:if="${v.active}" class="badge badge-success">Active</span>
+                        <span th:unless="${v.active}" class="badge badge-secondary">Inactive</span>
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-secondary" th:href="@{/admin/videos/edit/{id}(id=${v.id})}">Edit</a>
+                        <a class="btn btn-sm btn-danger" th:href="@{/admin/videos/delete/{id}(id=${v.id})}"
+                            onclick="return confirm('Delete video?')">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

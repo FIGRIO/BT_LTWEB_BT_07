@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Category Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <h3 th:text="${category.id} != null ? 'Edit Category' : 'New Category'"></h3>
+        <form th:action="@{/admin/categories/save}" th:object="${category}" method="post">
+            <input type="hidden" th:field="*{id}" />
+            <div class="form-group">
+                <label>Name</label>
+                <input th:field="*{categoryname}" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label>Code</label>
+                <input th:field="*{categorycode}" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Images (URL)</label>
+                <input th:field="*{images}" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Owner (User)</label>
+                <select name="username" class="form-control">
+                    <option value="">-- Select Owner --</option>
+                    <option th:each="u : ${users}" th:value="${u.username}" th:text="${u.fullname}"
+                        th:selected="${category.user != null and category.user.username == u.username}">
+                    </option>
+                </select>
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" th:field="*{status}" class="form-check-input" />
+                <label class="form-check-label">Active</label>
+            </div>
+            <button class="btn btn-primary" type="submit">Save</button>
+            <a class="btn btn-secondary" th:href="@{/admin/categories}">Cancel</a>
+        </form>
+    </div>
+</body>
+
+</html>
