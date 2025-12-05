@@ -8,7 +8,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "Videos")
+@Table(name = "videos")
 public class Video implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,7 +25,9 @@ public class Video implements Serializable {
 
     private int views;
 
-    @Column(columnDefinition = "nvarchar(MAX)")
+    // @Column(columnDefinition = "nvarchar(MAX)")
+    // private String description;
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private boolean active;
